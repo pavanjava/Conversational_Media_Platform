@@ -1,0 +1,589 @@
+{
+  "name": "video_news2linkedin_conent",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -1220,
+        160
+      ],
+      "id": "e0a68968-6e2f-46df-b8fd-86d0f43b20fb",
+      "name": "When chat message received",
+      "webhookId": "030aed5b-557d-46e3-8919-151eff58fca1"
+    },
+    {
+      "parameters": {
+        "fileSelector": "/Users/pavanmantha/Pavans/PracticeExamples/DataScience_Practice/Advanced-AI-Apps/Conversational_Media_Platform/transcriptions/*.txt",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1,
+      "position": [
+        180,
+        0
+      ],
+      "id": "ad40d4f6-86c3-4cd9-afc1-740351273963",
+      "name": "Read/Write Files from Disk"
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        500,
+        0
+      ],
+      "id": "70f5f1bf-de73-4574-a14e-1cb83c43f9a2",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "person": "orAUxxNmwM",
+        "text": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "id": "6bde4c06-abe6-4524-bca7-219de8747bd5",
+      "name": "LinkedIn",
+      "type": "n8n-nodes-base.linkedIn",
+      "typeVersion": 1,
+      "position": [
+        1240,
+        0
+      ],
+      "credentials": {
+        "linkedInOAuth2Api": {
+          "id": "aO3Pf28neDNmz3zc",
+          "name": "LinkedIn account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Create the summary in the below format from the given context. the summary should be brief and crisp and easy to consume. This summary should look professional as its going to publish in linkedin. Always emphasise on AI aspects of the context.\n-------------------\ncontext:\n{{ $json.data }}\n------------------\nAssistant:\nSummary: \"The actual summary in brief\"\n\"Important bullet points\".\n------------------\nAs final thoughts, place make the content beautiful with nice emojis.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        780,
+        0
+      ],
+      "id": "3effb4ae-e688-44a8-bb6c-44877b8dabb0",
+      "name": "AI Agent2"
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o-2024-11-20",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        780,
+        200
+      ],
+      "id": "aaedf6d3-3e2e-4570-901f-704854acd0d8",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "P1FfoID4UTiPdjMD",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "qdrantCollection": {
+          "__rl": true,
+          "value": "media_content",
+          "mode": "list",
+          "cachedResultName": "media_content"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreQdrant",
+      "typeVersion": 1,
+      "position": [
+        820,
+        -560
+      ],
+      "id": "d14f14cb-2c65-426f-94cb-7430229cc21d",
+      "name": "Qdrant Vector Store",
+      "credentials": {
+        "qdrantApi": {
+          "id": "jbqGna16O2L9iR8V",
+          "name": "QdrantApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "nomic-embed-text:latest"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
+      "typeVersion": 1,
+      "position": [
+        860,
+        -340
+      ],
+      "id": "58c1a112-a321-4483-a906-c5fcebfa00b4",
+      "name": "Embeddings Ollama",
+      "credentials": {
+        "ollamaApi": {
+          "id": "3fAFU0fFchwovvbD",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1,
+      "position": [
+        1020,
+        -360
+      ],
+      "id": "f253cb7b-0fb9-445b-9bac-364a7513bdd2",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "chunkSize": 512,
+        "chunkOverlap": 20,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        1120,
+        -220
+      ],
+      "id": "53bcb684-ba7d-4516-aff1-1df91f35fac2",
+      "name": "Recursive Character Text Splitter"
+    },
+    {
+      "parameters": {
+        "content": "",
+        "height": 300,
+        "width": 820
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1300,
+        40
+      ],
+      "id": "e584c5f4-d720-4f07-9cdd-cc560b0e4714",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "read transcribed file from disk",
+        "height": 100,
+        "width": 200,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        80,
+        -120
+      ],
+      "id": "8281e818-c023-437e-88ee-3cde922dd031",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "read transcribed file content from disk",
+        "height": 100,
+        "width": 200,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        420,
+        -120
+      ],
+      "id": "da055751-77cd-4c4b-87f4-6c72181767f5",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "pass content to agent and augment with a desired prompt as per the need\n",
+        "height": 100,
+        "width": 200,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        940,
+        200
+      ],
+      "id": "e0c64be8-adb1-4f10-8861-44ad0e306bf3",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "finally publish the content to linked as feed.",
+        "height": 100,
+        "width": 200,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1260,
+        160
+      ],
+      "id": "9193d603-6e3f-4c6f-911d-7cdda76cf4d7",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "initialise the qdrant vector store",
+        "height": 100,
+        "width": 200,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        840,
+        -680
+      ],
+      "id": "f39dc008-7e14-416e-8a78-0d4c74da18a4",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "content": "pickup the transcribed text from the previous step",
+        "height": 100,
+        "width": 200,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1300,
+        -380
+      ],
+      "id": "d88df249-1500-4947-ba68-46e8d375cc9d",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "content": "use the recursive chunk strategy",
+        "height": 100,
+        "width": 200,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1240,
+        -240
+      ],
+      "id": "9091a90f-789d-4f07-ba9a-7f1b9e21d7b3",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "content": "embedding model provider",
+        "height": 80,
+        "width": 200,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        820,
+        -220
+      ],
+      "id": "95a17cbb-f124-4f6b-8462-94616e71be22",
+      "name": "Sticky Note9"
+    },
+    {
+      "parameters": {
+        "content": "trigger the flow manually if the transciption already exist",
+        "height": 100,
+        "width": 200,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -260,
+        340
+      ],
+      "id": "8cd66716-1d9e-4033-8180-8f77e50465f4",
+      "name": "Sticky Note10"
+    },
+    {
+      "parameters": {
+        "content": "execute transscribe service",
+        "height": 80,
+        "width": 220,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -840,
+        60
+      ],
+      "id": "f16b4ac3-8d4d-4ec1-9195-c13fadddfb5f",
+      "name": "Sticky Note11"
+    },
+    {
+      "parameters": {
+        "path": "8895e90e-a0d7-42b9-8aed-db2a21fe1e29",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -220,
+        0
+      ],
+      "id": "42638866-6ac0-45f3-a6d1-d71671627c57",
+      "name": "Webhook",
+      "webhookId": "8895e90e-a0d7-42b9-8aed-db2a21fe1e29"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -220,
+        180
+      ],
+      "id": "07f10b12-b111-45fd-81ce-e90c9e960983",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "content": "triggered by transcribe serve once the transcription is finished",
+        "height": 100,
+        "width": 200,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -260,
+        -120
+      ],
+      "id": "654d1fa1-01ea-4b65-a897-c3db7da06da5",
+      "name": "Sticky Note12"
+    },
+    {
+      "parameters": {
+        "content": "push the youtube url from chat to transcribe service",
+        "height": 80,
+        "width": 200,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -1260,
+        60
+      ],
+      "id": "40f60316-d13b-4d9a-889b-fb6c9b687178",
+      "name": "Sticky Note13"
+    },
+    {
+      "parameters": {
+        "content": "",
+        "height": 1200,
+        "width": 1920
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -360,
+        -720
+      ],
+      "id": "a27aba9a-1312-404e-a13a-3d83e346562d",
+      "name": "Sticky Note14"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://91da-2401-4900-1c27-c6dc-a125-614c-9a57-5f4.ngrok-free.app/api/v1/transcribe",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "url",
+              "value": "={{ $json.chatInput }}"
+            }
+          ]
+        },
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "timeout": 3600000
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -780,
+        160
+      ],
+      "id": "37c99e5b-5afc-448d-b621-e9f8bbcd6604",
+      "name": "call transcribe service"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "call transcribe service",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read/Write Files from Disk": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Qdrant Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent2": {
+      "main": [
+        [
+          {
+            "node": "LinkedIn",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LinkedIn": {
+      "main": [
+        []
+      ]
+    },
+    "Embeddings Ollama": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Qdrant Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Qdrant Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "call transcribe service": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0d079d58-28fa-4309-9e92-2d930e9ee963",
+  "meta": {
+    "instanceId": "e711fbe877d128d86a078d3ddcaeb0c456781dc70945c5f7c313501777f80a45"
+  },
+  "id": "69H1DAH1BBR7UNjn",
+  "tags": []
+}
