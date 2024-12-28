@@ -23,8 +23,8 @@ import logging
 _ = load_dotenv(find_dotenv())
 
 # A video about Qdrant from one of the devrel.
-youtube_url = "https://www.youtube.com/watch?v=mXNrhyw4q84&t=99s"
-output_path = './data/how_vector_search_algo_works.mp3'
+youtube_url = "https://www.youtube.com/watch?v=9NtsnzRFJ_o&t=17s"
+output_path = './data'
 Video2AudioConverter().download_youtube_audio(youtube_url, output_path)
 
 # transcribe the audio into text
